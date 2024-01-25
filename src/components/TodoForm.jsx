@@ -18,14 +18,14 @@ function TodoForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     if (input.trim() !== '') {
       const randomColor = generateRandomColor();
       const newTodo = { text: input, color: randomColor };
-  
+
       // Add the new todo to the local state
       setTodos([...todos, newTodo]);
-  
+
       // Save the new todo to the database using json-server
       try {
         await fetch('http://localhost:3000/todos', {
@@ -38,8 +38,23 @@ function TodoForm() {
       } catch (error) {
         console.error('Error saving todo to database:', error);
       }
-  
+
       setInput('');
+    }
+  };
+
+  const handleDelete = async (id) => {
+    // Remove the todo from the local state
+    const updatedTodos = todos.filter((todo) => todo.id !== id);
+    setTodos(updatedTodos);
+
+    // Delete the todo from the database using json-server
+    try {
+      await fetch(`http://localhost:3000/todos/${id}`, {
+        method: 'DELETE',
+      });
+    } catch (error) {
+      console.error('Error deleting todo from database:', error);
     }
   };
 
@@ -111,21 +126,21 @@ function TodoForm() {
               borderRadius: '4px',
               display: 'flex',
               justifyContent: 'space-between',
-              alignItems: 'center'
+              alignItems: 'center',
             }}
           >
             <Box>{todo.text}</Box>
 
             <Box>
-              <Tooltip>
+              <Tooltip title="Edit">
                 <IconButton>
-                  <BorderColor sx={{fontSize: '18px'}}/>
+                  <BorderColor sx={{ fontSize: '18px' }} />
                 </IconButton>
               </Tooltip>
 
-              <Tooltip>
-                <IconButton>
-                  <DeleteIcon sx={{fontSize: '18px'}}/>
+              <Tooltip title="Delete">
+                <IconButton onClick={() => handleDelete(todo.id)}>
+                  <DeleteIcon sx={{ fontSize: '18px' }} />
                 </IconButton>
               </Tooltip>
             </Box>
