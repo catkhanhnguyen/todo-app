@@ -1,14 +1,29 @@
 {
-    "todos": [
-      {
-        "id": 1,
-        "text": "Buy groceries",
-        "completed": false
-      },
-      {
-        "id": 2,
-        "text": "Finish coding project",
-        "completed": true
-      }
-    ]
-  }
+  "todos": [
+    {
+      "id": "1",
+      "text": "Buy groceries",
+      "completed": false
+    },
+    {
+      "id": "2",
+      "text": "Finish coding project",
+      "completed": true
+    },
+    {
+      "id": "6c7b",
+      "text": "Feed kittens",
+      "completed": false
+    },
+    {
+      "id": "bba4",
+      "text": "Breakfast",
+      "completed": false
+    },
+    {
+      "id": "b342",
+      "text": "Supermarket",
+      "completed": false
+    }
+  ]
+}

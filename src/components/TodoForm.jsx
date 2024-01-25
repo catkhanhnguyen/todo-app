@@ -1,7 +1,7 @@
 import { Box, Button, OutlinedInput, Typography } from '@mui/material';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
-function TodoForm(props) {
+function TodoForm() {
   const [input, setInput] = useState('');
   const [todos, setTodos] = useState([]);
 
@@ -14,15 +14,49 @@ function TodoForm(props) {
     return `#${(Math.random() * 0xffffff << 0).toString(16).padStart(6, '0')}`;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     if (input.trim() !== '') {
       const randomColor = generateRandomColor();
-      setTodos([...todos, { text: input, color: randomColor }]);
+      const newTodo = { text: input, color: randomColor };
+  
+      // Add the new todo to the local state
+      setTodos([...todos, newTodo]);
+  
+      // Save the new todo to the database using json-server
+      try {
+        await fetch('http://localhost:3000/todos', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(newTodo),
+        });
+      } catch (error) {
+        console.error('Error saving todo to database:', error);
+      }
+  
       setInput('');
     }
   };
+
+  const fetchTodos = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/todos');
+      const data = await response.json();
+      // Add a random color property to each fetched todo
+      const todosWithColor = data.map((todo) => ({ ...todo, color: generateRandomColor() }));
+      setTodos(todosWithColor);
+    } catch (error) {
+      console.error('Error fetching todos:', error);
+    }
+  };
+
+  // Use useEffect to fetch todos when the component mounts
+  useEffect(() => {
+    fetchTodos();
+  }, []); // Empty dependency array ensures that this effect runs only once when the component mounts
 
   return (
     <Box>
