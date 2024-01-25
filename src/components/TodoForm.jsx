@@ -15,7 +15,7 @@ function TodoForm() {
   const [input, setInput] = useState('');
   const [todos, setTodos] = useState([]);
   const [editTodo, setEditTodo] = useState(null);
-  
+
 
   const handleChange = (e) => setInput(e.target.value);
 
@@ -130,12 +130,29 @@ function TodoForm() {
           </Button>
         </Box>
       </form>
-      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 4 }}>
+      <Box sx={{
+        height: '300px',
+        mt: 2,
+        overflowY: 'auto',
+        scrollbarWidth: 'thin',
+        '&::-webkit-scrollbar': {
+          width: '0.4em',
+        },
+        '&::-webkit-scrollbar-track': {
+          background: "#888",
+        },
+        '&::-webkit-scrollbar-thumb': {
+          backgroundColor: '#f1f1f1',
+        },
+        '&::-webkit-scrollbar-thumb:hover': {
+          background: 'white'
+        }
+      }}>
         {todos.map((todo, index) => (
           <Box
             key={index}
             sx={{
-              width: '95%',
+
               padding: '8px',
               margin: '4px',
               backgroundColor: todo.color,
@@ -143,7 +160,7 @@ function TodoForm() {
               borderRadius: '4px',
               display: 'flex',
               justifyContent: 'space-between',
-              alignItems: 'center',
+              alignItems: 'center'
             }}
           >
             <Box>{todo.text}</Box>
