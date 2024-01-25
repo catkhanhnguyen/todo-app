@@ -1,4 +1,6 @@
-import { Box, Button, OutlinedInput, Typography } from '@mui/material';
+import { BorderColor } from '@mui/icons-material';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { Box, Button, IconButton, OutlinedInput, Tooltip, Typography } from '@mui/material';
 import { useState, useEffect } from 'react';
 
 function TodoForm() {
@@ -77,7 +79,7 @@ function TodoForm() {
           <OutlinedInput
             placeholder='Your activity here'
             value={input}
-            sx={{ height: '40px', width: '200px' }}
+            sx={{ height: '40px', width: '200px', color: 'white' }}
             onChange={handleChange}
           />
           <Button
@@ -107,9 +109,26 @@ function TodoForm() {
               backgroundColor: todo.color, // Use the solid color for the background
               color: 'white',
               borderRadius: '4px',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center'
             }}
           >
-            {todo.text}
+            <Box>{todo.text}</Box>
+
+            <Box>
+              <Tooltip>
+                <IconButton>
+                  <BorderColor sx={{fontSize: '18px'}}/>
+                </IconButton>
+              </Tooltip>
+
+              <Tooltip>
+                <IconButton>
+                  <DeleteIcon sx={{fontSize: '18px'}}/>
+                </IconButton>
+              </Tooltip>
+            </Box>
           </Box>
         ))}
       </Box>
