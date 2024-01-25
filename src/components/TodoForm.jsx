@@ -1,39 +1,38 @@
-import { BorderColor } from '@mui/icons-material';
-import DeleteIcon from '@mui/icons-material/Delete';
-import { Box, Button, IconButton, OutlinedInput, Tooltip, Typography } from '@mui/material';
+import { BorderColor, Delete } from '@mui/icons-material';
+import {
+  Box,
+  Button,
+  IconButton,
+  OutlinedInput,
+  Tooltip,
+  Typography,
+} from '@mui/material';
 import { useState, useEffect } from 'react';
 import pastelColors from '../assets/color';
+import Modal from './Modal';
 
 function TodoForm() {
   const [input, setInput] = useState('');
   const [todos, setTodos] = useState([]);
+  const [editTodo, setEditTodo] = useState(null);
+  
 
-  const handleChange = (e) => {
-    setInput(e.target.value);
-  };
+  const handleChange = (e) => setInput(e.target.value);
 
-  const generateRandomColor = () => {
-    const randomIndex = Math.floor(Math.random() * pastelColors.length);
-    return pastelColors[randomIndex];
-  };
+  const generateRandomColor = () => pastelColors[Math.floor(Math.random() * pastelColors.length)];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (input.trim() !== '') {
       const randomColor = generateRandomColor();
       const newTodo = { text: input, color: randomColor };
 
-      // Add the new todo to the local state
       setTodos([...todos, newTodo]);
 
-      // Save the new todo to the database using json-server
       try {
         await fetch('http://localhost:3000/todos', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(newTodo),
         });
       } catch (error) {
@@ -45,15 +44,11 @@ function TodoForm() {
   };
 
   const handleDelete = async (id) => {
-    // Remove the todo from the local state
     const updatedTodos = todos.filter((todo) => todo.id !== id);
     setTodos(updatedTodos);
 
-    // Delete the todo from the database using json-server
     try {
-      await fetch(`http://localhost:3000/todos/${id}`, {
-        method: 'DELETE',
-      });
+      await fetch(`http://localhost:3000/todos/${id}`, { method: 'DELETE' });
     } catch (error) {
       console.error('Error deleting todo from database:', error);
     }
@@ -63,7 +58,6 @@ function TodoForm() {
     try {
       const response = await fetch('http://localhost:3000/todos');
       const data = await response.json();
-      // Add a random color property to each fetched todo
       const todosWithColor = data.map((todo) => ({ ...todo, color: generateRandomColor() }));
       setTodos(todosWithColor);
     } catch (error) {
@@ -71,14 +65,36 @@ function TodoForm() {
     }
   };
 
-  // Use useEffect to fetch todos when the component mounts
   useEffect(() => {
     fetchTodos();
-  }, []); // Empty dependency array ensures that this effect runs only once when the component mounts
+  }, []);
+
+  const handleEdit = (todo) => {
+    setEditTodo(todo);
+  };
+
+  const handleEditSave = async (newText) => {
+    try {
+      await fetch(`http://localhost:3000/todos/${editTodo.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: newText }),
+      });
+
+      const updatedTodos = todos.map((todo) =>
+        todo.id === editTodo.id ? { ...todo, text: newText } : todo
+      );
+      setTodos(updatedTodos);
+    } catch (error) {
+      console.error('Error updating todo:', error);
+    } finally {
+      setEditTodo(null);
+    }
+  };
 
   return (
     <Box>
-      <Typography textAlign={'center'} m={2} variant="h5">
+      <Typography textAlign="center" m={2} variant="h5">
         TODO APP
       </Typography>
       <form onSubmit={handleSubmit}>
@@ -93,13 +109,13 @@ function TodoForm() {
           }}
         >
           <OutlinedInput
-            placeholder='Your activity here'
+            placeholder="Your activity here"
             value={input}
             sx={{ height: '40px', width: '200px', color: 'white' }}
             onChange={handleChange}
           />
           <Button
-            type='submit'
+            type="submit"
             variant="contained"
             sx={{
               backgroundImage: 'linear-gradient(to right, #ee9ca7, #ffdde1)',
@@ -119,10 +135,10 @@ function TodoForm() {
           <Box
             key={index}
             sx={{
-              width: '95%', // Set width to 100% for full width
+              width: '95%',
               padding: '8px',
               margin: '4px',
-              backgroundColor: todo.color, // Use the solid color for the background
+              backgroundColor: todo.color,
               color: 'white',
               borderRadius: '4px',
               display: 'flex',
@@ -134,19 +150,26 @@ function TodoForm() {
 
             <Box>
               <Tooltip title="Edit">
-                <IconButton>
+                <IconButton onClick={() => handleEdit(todo)}>
                   <BorderColor sx={{ fontSize: '18px' }} />
                 </IconButton>
               </Tooltip>
 
               <Tooltip title="Delete">
                 <IconButton onClick={() => handleDelete(todo.id)}>
-                  <DeleteIcon sx={{ fontSize: '18px' }} />
+                  <Delete sx={{ fontSize: '18px' }} />
                 </IconButton>
               </Tooltip>
             </Box>
           </Box>
         ))}
+
+        <Modal
+          open={Boolean(editTodo)}
+          onClose={() => setEditTodo(null)}
+          onSave={handleEditSave}
+          initialText={editTodo?.text || ''}
+        />
       </Box>
     </Box>
   );

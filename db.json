@@ -24,6 +24,16 @@
       "id": "bb8f",
       "text": "Supermarket",
       "color": "#64eb82"
+    },
+    {
+      "id": "05b5",
+      "text": "Cafe",
+      "color": "#B2DBBF"
+    },
+    {
+      "id": "4fa8",
+      "text": "Learn math",
+      "color": "#9B8BBA"
     }
   ]
 }
