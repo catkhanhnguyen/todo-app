@@ -2,6 +2,7 @@ import { BorderColor } from '@mui/icons-material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Box, Button, IconButton, OutlinedInput, Tooltip, Typography } from '@mui/material';
 import { useState, useEffect } from 'react';
+import pastelColors from '../assets/color';
 
 function TodoForm() {
   const [input, setInput] = useState('');
@@ -12,8 +13,8 @@ function TodoForm() {
   };
 
   const generateRandomColor = () => {
-    // Generate a random hex color code
-    return `#${(Math.random() * 0xffffff << 0).toString(16).padStart(6, '0')}`;
+    const randomIndex = Math.floor(Math.random() * pastelColors.length);
+    return pastelColors[randomIndex];
   };
 
   const handleSubmit = async (e) => {
