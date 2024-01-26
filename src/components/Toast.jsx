@@ -21,7 +21,7 @@ const Toast = ({ open, message, handleClose }) => {
   };
 
   return (
-    <Snackbar open={isOpen} autoHideDuration={6000} onClose={handleSnackbarClose} message={message} />
+    <Snackbar open={isOpen} autoHideDuration={1200} onClose={handleSnackbarClose} message={message} />
   );
 };
 

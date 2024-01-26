@@ -73,10 +73,6 @@ function TodoForm() {
           if (response.status === 201) {
             const createdTodo = await response.json();
             setTodos([...todos, createdTodo]);
-          } else if (response.status === 400) {
-            showSnackbar('Todo is invalid: Please enter a non-empty string!!');
-          } else {
-            console.error('Failed to add todo to the database.');
           }
         } catch (error) {
           console.error('Error saving todo to database:', error);
