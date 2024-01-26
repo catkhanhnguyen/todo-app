@@ -25,28 +25,27 @@
       "id": "bba4"
     },
     {
-      "text": "Learn math",
-      "color": "#9B8BBA",
-      "completed": true,
-      "id": "4fa8"
-    },
-    {
-      "text": "Chill",
-      "color": "#B5EAD7",
-      "completed": true,
-      "id": "cc3c"
-    },
-    {
       "text": "Cafe",
       "color": "#B2DBBF",
-      "completed": false,
       "id": "54c7"
     },
     {
       "text": "Supermarket",
       "color": "#FFD3C0",
-      "completed": true,
+      "completed": false,
       "id": "5103"
+    },
+    {
+      "id": "4d61",
+      "text": "Cafe",
+      "color": "#B2DBBF",
+      "completed": false
+    },
+    {
+      "id": "35d6",
+      "text": "Cafe",
+      "color": "#D4A5A5",
+      "completed": false
     }
   ]
 }

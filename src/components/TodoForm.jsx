@@ -1,4 +1,3 @@
-import { BorderColor, CheckBox, CheckBoxOutlineBlank, Delete } from '@mui/icons-material';
 import {
   Box,
   Button,
@@ -10,56 +9,20 @@ import {
 import { useState, useEffect } from 'react';
 import pastelColors from '../assets/color';
 import Modal from './Modal';
+import Toast from './Toast';
+import { BorderColor, CheckBox, CheckBoxOutlineBlank, Delete } from '@mui/icons-material';
 
 function TodoForm() {
   const [input, setInput] = useState('');
   const [todos, setTodos] = useState([]);
   const [editTodo, setEditTodo] = useState(null);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
 
-  const generateRandomColor = () => pastelColors[Math.floor(Math.random() * pastelColors.length)];
+  const generateRandomColor = () =>
+    pastelColors[Math.floor(Math.random() * pastelColors.length)];
 
   const handleChange = (e) => setInput(e.target.value);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (input.trim() !== '') {
-      const randomColor = generateRandomColor();
-      const newTodo = { text: input, color: randomColor, completed: false };
-
-      try {
-        // Thực hiện yêu cầu POST để thêm todo mới vào cơ sở dữ liệu
-        const response = await fetch('http://localhost:3000/todos', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(newTodo),
-        });
-
-        // Kiểm tra xem yêu cầu POST có thành công không (status code 201 Created)
-        if (response.status === 201) {
-          // Lấy todo đã được tạo từ phản hồi và cập nhật danh sách todos
-          const createdTodo = await response.json();
-          setTodos([...todos, createdTodo]);
-        } else {
-          console.error('Failed to add todo to the database.');
-        }
-      } catch (error) {
-        console.error('Error saving todo to database:', error);
-      }
-
-      setInput('');
-    }
-  };
-
-  const handleDelete = async (id) => {
-    const updatedTodos = todos.filter((todo) => todo.id !== id);
-    setTodos(updatedTodos);
-
-    try {
-      await fetch(`http://localhost:3000/todos/${id}`, { method: 'DELETE' });
-    } catch (error) {
-      console.error('Error deleting todo from database:', error);
-    }
-  };
 
   const fetchTodos = async () => {
     try {
@@ -75,6 +38,63 @@ function TodoForm() {
     fetchTodos();
   }, []);
 
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setSnackbarOpen(false);
+  };
+
+  const showSnackbar = (message) => {
+    setSnackbarMessage(message);
+    setSnackbarOpen(true);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (input.trim() !== '') {
+      const randomColor = generateRandomColor();
+      const newTodo = { text: input, color: randomColor, completed: false };
+
+      try {
+        const response = await fetch('http://localhost:3000/todos', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newTodo),
+        });
+
+        if (response.status === 201) {
+          const createdTodo = await response.json();
+          setTodos([...todos, createdTodo]);
+        } else if (response.status === 400) {
+          showSnackbar('Todo is invalid: Please enter a non-empty string!!');
+        } else if (response.status === 409) {
+          showSnackbar('Todo is already existed!! Fulfill it now?!');
+        } else {
+          console.error('Failed to add todo to the database.');
+        }
+      } catch (error) {
+        console.error('Error saving todo to database:', error);
+      }
+
+      setInput('');
+    } else {
+      showSnackbar('Todo is invalid: Please enter a non-empty string!!');
+    }
+  };
+
+  const handleDelete = async (id) => {
+    const updatedTodos = todos.filter((todo) => todo.id !== id);
+    setTodos(updatedTodos);
+
+    try {
+      await fetch(`http://localhost:3000/todos/${id}`, { method: 'DELETE' });
+    } catch (error) {
+      console.error('Error deleting todo from database:', error);
+    }
+  };
+
   const handleEdit = (todo) => {
     setEditTodo({
       id: todo.id,
@@ -86,16 +106,13 @@ function TodoForm() {
     try {
       const currentTodo = todos.find((todo) => todo.id === editTodo.id);
 
-      // Thực hiện yêu cầu PUT để cập nhật todo trong cơ sở dữ liệu
       const response = await fetch(`http://localhost:3000/todos/${editTodo.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: newText, color: currentTodo.color }),
       });
 
-      // Kiểm tra xem yêu cầu PUT có thành công không (status code 200 OK)
       if (response.status === 200) {
-        // Cập nhật danh sách todos với todo đã được cập nhật
         const updatedTodos = todos.map((todo) =>
           todo.id === editTodo.id ? { ...todo, text: newText } : todo
         );
@@ -114,16 +131,12 @@ function TodoForm() {
     try {
       const currentTodo = todos.find((todo) => todo.id === id);
 
-      // Thực hiện yêu cầu PUT để cập nhật trạng thái completed trong cơ sở dữ liệu
       const response = await fetch(`http://localhost:3000/todos/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: currentTodo.text, color: currentTodo.color, completed: !currentCompleted }),
       });
-
-      // Kiểm tra xem yêu cầu PUT có thành công không (status code 200 OK)
       if (response.status === 200) {
-        // Cập nhật danh sách todos với todo đã được cập nhật
         const updatedTodos = todos.map((todo) =>
           todo.id === id ? { ...todo, completed: !currentCompleted } : todo
         );
@@ -246,6 +259,12 @@ function TodoForm() {
           onClose={() => setEditTodo(null)}
           onSave={(newText) => handleEditSave(newText, editTodo?.id)}
           initialText={editTodo?.initialText || ''}
+        />
+
+        <Toast
+          open={snackbarOpen}
+          message={snackbarMessage}
+          handleClose={handleSnackbarClose}
         />
       </Box>
     </Box>
