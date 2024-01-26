@@ -54,35 +54,41 @@ function TodoForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (input.trim() !== '') {
-      const randomColor = generateRandomColor();
-      const newTodo = { text: input, color: randomColor, completed: false };
-
-      try {
-        const response = await fetch('http://localhost:3000/todos', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(newTodo),
-        });
-
-        if (response.status === 201) {
-          const createdTodo = await response.json();
-          setTodos([...todos, createdTodo]);
-        } else if (response.status === 400) {
-          showSnackbar('Todo is invalid: Please enter a non-empty string!!');
-        } else if (response.status === 409) {
-          showSnackbar('Todo is already existed!! Fulfill it now?!');
-        } else {
-          console.error('Failed to add todo to the database.');
+      const existingTodo = todos.find((todo) => todo.text === input);
+  
+      if (existingTodo) {
+        showSnackbar('Todo already exists! Fulfill it now?!');
+  
+      } else {
+        const randomColor = generateRandomColor();
+        const newTodo = { text: input, color: randomColor, completed: false };
+  
+        try {
+          const response = await fetch('http://localhost:3000/todos', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newTodo),
+          });
+  
+          if (response.status === 201) {
+            const createdTodo = await response.json();
+            setTodos([...todos, createdTodo]);
+          } else if (response.status === 400) {
+            showSnackbar('Todo is invalid: Please enter a non-empty string!!');
+          } else {
+            console.error('Failed to add todo to the database.');
+          }
+        } catch (error) {
+          console.error('Error saving todo to database:', error);
         }
-      } catch (error) {
-        console.error('Error saving todo to database:', error);
+  
+        setInput('');
       }
-
-      setInput('');
     } else {
       showSnackbar('Todo is invalid: Please enter a non-empty string!!');
     }
   };
+  
 
   const handleDelete = async (id) => {
     const updatedTodos = todos.filter((todo) => todo.id !== id);
