@@ -1,4 +1,4 @@
-import { BorderColor, Delete } from '@mui/icons-material';
+import { BorderColor, CheckBox, Delete } from '@mui/icons-material';
 import {
   Box,
   Button,
@@ -120,7 +120,7 @@ function TodoForm() {
           <OutlinedInput
             placeholder="Your activity here"
             value={input}
-            sx={{ height: '40px', width: '200px', color: 'white' }}
+            sx={{ height: '40px', width: '250px', color: 'white' }}
             onChange={handleChange}
           />
           <Button
@@ -161,18 +161,29 @@ function TodoForm() {
           <Box
             key={index}
             sx={{
-
               padding: '8px',
               margin: '4px',
               backgroundColor: todo.color,
-              color: 'white',
+              color: '#303952',
               borderRadius: '4px',
               display: 'flex',
               justifyContent: 'space-between',
-              alignItems: 'center'
+              alignItems: 'center',
             }}
           >
-            <Box>{todo.text}</Box>
+            <Box sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}>
+              <Tooltip title="Check">
+                <IconButton>
+                  <CheckBox sx={{ fontSize: '18px' }} />
+                </IconButton>
+              </Tooltip>
+              {todo.text}
+            </Box>
+            
 
             <Box>
               <Tooltip title="Edit">
