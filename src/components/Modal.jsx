@@ -6,7 +6,7 @@ import {
   DialogContent,
   DialogActions,
   Button,
-  TextField,
+  OutlinedInput,
 } from '@mui/material';
 
 const Modal = ({ open, onClose, onSave, initialText }) => {
@@ -25,8 +25,8 @@ const Modal = ({ open, onClose, onSave, initialText }) => {
     <Dialog open={open} onClose={onClose}>
       <DialogTitle>Edit Todo</DialogTitle>
       <DialogContent>
-        <TextField
-          label="Todo Text"
+        <OutlinedInput
+          placeholder="Todo Text"
           fullWidth
           value={text}
           onChange={handleTextChange}
