@@ -29,6 +29,15 @@
       "id": "4fa8",
       "text": "Learn math",
       "color": "#9B8BBA"
+    },
+    {
+      "text": "Science",
+      "id": "012e"
+    },
+    {
+      "id": "cc3c",
+      "text": "Chill",
+      "color": "#B5EAD7"
     }
   ]
 }

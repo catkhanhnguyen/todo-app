@@ -16,10 +16,9 @@ function TodoForm() {
   const [todos, setTodos] = useState([]);
   const [editTodo, setEditTodo] = useState(null);
 
+  const generateRandomColor = () => pastelColors[Math.floor(Math.random() * pastelColors.length)];
 
   const handleChange = (e) => setInput(e.target.value);
-
-  const generateRandomColor = () => pastelColors[Math.floor(Math.random() * pastelColors.length)];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -70,27 +69,33 @@ function TodoForm() {
   }, []);
 
   const handleEdit = (todo) => {
-    setEditTodo(todo);
+    setEditTodo({
+      id: todo.id,
+      initialText: todo.text,
+    });
   };
-
+  
   const handleEditSave = async (newText) => {
     try {
       await fetch(`http://localhost:3000/todos/${editTodo.id}`, {
-        method: 'PATCH',
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: newText }),
       });
-
+  
+      // Tìm todo có id tương ứng và cập nhật text mới
       const updatedTodos = todos.map((todo) =>
         todo.id === editTodo.id ? { ...todo, text: newText } : todo
       );
+  
       setTodos(updatedTodos);
     } catch (error) {
       console.error('Error updating todo:', error);
     } finally {
       setEditTodo(null);
     }
-  };
+  };  
+  
 
   return (
     <Box>
@@ -182,11 +187,13 @@ function TodoForm() {
         ))}
 
         <Modal
+          key={editTodo?.id || 'new'}
           open={Boolean(editTodo)}
           onClose={() => setEditTodo(null)}
-          onSave={handleEditSave}
-          initialText={editTodo?.text || ''}
+          onSave={(newText) => handleEditSave(newText, editTodo?.id)}
+          initialText={editTodo?.initialText || ''}
         />
+
       </Box>
     </Box>
   );
