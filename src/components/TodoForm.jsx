@@ -57,8 +57,8 @@ function TodoForm() {
     try {
       const response = await fetch('http://localhost:3000/todos');
       const data = await response.json();
-      const todosWithColor = data.map((todo) => ({ ...todo, color: generateRandomColor() }));
-      setTodos(todosWithColor);
+      // const todosWithColor = data.map((todo) => ({ ...todo, color: generateRandomColor() }));
+      setTodos(data);
     } catch (error) {
       console.error('Error fetching todos:', error);
     }
@@ -77,10 +77,14 @@ function TodoForm() {
   
   const handleEditSave = async (newText) => {
     try {
+      // Lấy thông tin todo hiện tại
+      const currentTodo = todos.find((todo) => todo.id === editTodo.id);
+  
+      // Gửi yêu cầu PUT với trường text mới và giữ nguyên trường color cũ
       await fetch(`http://localhost:3000/todos/${editTodo.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: newText }),
+        body: JSON.stringify({ text: newText, color: currentTodo.color }),
       });
   
       // Tìm todo có id tương ứng và cập nhật text mới
