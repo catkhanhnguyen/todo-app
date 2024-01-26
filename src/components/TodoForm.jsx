@@ -1,4 +1,4 @@
-import { BorderColor, CheckBox, Delete } from '@mui/icons-material';
+import { BorderColor, CheckBox, CheckBoxOutlineBlank, Delete } from '@mui/icons-material';
 import {
   Box,
   Button,
@@ -24,16 +24,24 @@ function TodoForm() {
     e.preventDefault();
     if (input.trim() !== '') {
       const randomColor = generateRandomColor();
-      const newTodo = { text: input, color: randomColor };
-
-      setTodos([...todos, newTodo]);
+      const newTodo = { text: input, color: randomColor, completed: false };
 
       try {
-        await fetch('http://localhost:3000/todos', {
+        // Thực hiện yêu cầu POST để thêm todo mới vào cơ sở dữ liệu
+        const response = await fetch('http://localhost:3000/todos', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(newTodo),
         });
+
+        // Kiểm tra xem yêu cầu POST có thành công không (status code 201 Created)
+        if (response.status === 201) {
+          // Lấy todo đã được tạo từ phản hồi và cập nhật danh sách todos
+          const createdTodo = await response.json();
+          setTodos([...todos, createdTodo]);
+        } else {
+          console.error('Failed to add todo to the database.');
+        }
       } catch (error) {
         console.error('Error saving todo to database:', error);
       }
@@ -57,7 +65,6 @@ function TodoForm() {
     try {
       const response = await fetch('http://localhost:3000/todos');
       const data = await response.json();
-      // const todosWithColor = data.map((todo) => ({ ...todo, color: generateRandomColor() }));
       setTodos(data);
     } catch (error) {
       console.error('Error fetching todos:', error);
@@ -74,32 +81,60 @@ function TodoForm() {
       initialText: todo.text,
     });
   };
-  
+
   const handleEditSave = async (newText) => {
     try {
-      // Lấy thông tin todo hiện tại
       const currentTodo = todos.find((todo) => todo.id === editTodo.id);
-  
-      // Gửi yêu cầu PUT với trường text mới và giữ nguyên trường color cũ
-      await fetch(`http://localhost:3000/todos/${editTodo.id}`, {
+
+      // Thực hiện yêu cầu PUT để cập nhật todo trong cơ sở dữ liệu
+      const response = await fetch(`http://localhost:3000/todos/${editTodo.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: newText, color: currentTodo.color }),
       });
-  
-      // Tìm todo có id tương ứng và cập nhật text mới
-      const updatedTodos = todos.map((todo) =>
-        todo.id === editTodo.id ? { ...todo, text: newText } : todo
-      );
-  
-      setTodos(updatedTodos);
+
+      // Kiểm tra xem yêu cầu PUT có thành công không (status code 200 OK)
+      if (response.status === 200) {
+        // Cập nhật danh sách todos với todo đã được cập nhật
+        const updatedTodos = todos.map((todo) =>
+          todo.id === editTodo.id ? { ...todo, text: newText } : todo
+        );
+        setTodos(updatedTodos);
+      } else {
+        console.error('Failed to update todo in the database.');
+      }
     } catch (error) {
       console.error('Error updating todo:', error);
     } finally {
       setEditTodo(null);
     }
-  };  
-  
+  };
+
+  const handleToggleComplete = async (id, currentCompleted) => {
+    try {
+      const currentTodo = todos.find((todo) => todo.id === id);
+
+      // Thực hiện yêu cầu PUT để cập nhật trạng thái completed trong cơ sở dữ liệu
+      const response = await fetch(`http://localhost:3000/todos/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: currentTodo.text, color: currentTodo.color, completed: !currentCompleted }),
+      });
+
+      // Kiểm tra xem yêu cầu PUT có thành công không (status code 200 OK)
+      if (response.status === 200) {
+        // Cập nhật danh sách todos với todo đã được cập nhật
+        const updatedTodos = todos.map((todo) =>
+          todo.id === id ? { ...todo, completed: !currentCompleted } : todo
+        );
+        setTodos(updatedTodos);
+      } else {
+        console.error('Failed to update todo in the database.');
+      }
+    } catch (error) {
+      console.error('Error updating todo:', error);
+    }
+  };
 
   return (
     <Box>
@@ -171,19 +206,24 @@ function TodoForm() {
               alignItems: 'center',
             }}
           >
-            <Box sx={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center'
-            }}>
-              <Tooltip title="Check">
-                <IconButton>
-                  <CheckBox sx={{ fontSize: '18px' }} />
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
+              <Tooltip title={todo.completed ? 'true' : 'false'}>
+                <IconButton onClick={() => handleToggleComplete(todo.id, todo.completed)}>
+                  {todo.completed ? (
+                    <CheckBox sx={{ fontSize: '18px' }} />
+                  ) : (
+                    <CheckBoxOutlineBlank sx={{ fontSize: '18px' }} />
+                  )}
                 </IconButton>
               </Tooltip>
               {todo.text}
             </Box>
-            
 
             <Box>
               <Tooltip title="Edit">
@@ -200,7 +240,6 @@ function TodoForm() {
             </Box>
           </Box>
         ))}
-
         <Modal
           key={editTodo?.id || 'new'}
           open={Boolean(editTodo)}
@@ -208,7 +247,6 @@ function TodoForm() {
           onSave={(newText) => handleEditSave(newText, editTodo?.id)}
           initialText={editTodo?.initialText || ''}
         />
-
       </Box>
     </Box>
   );

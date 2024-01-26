@@ -1,44 +1,52 @@
 {
   "todos": [
     {
-      "id": "1",
       "text": "Buy groceries",
-      "color": "#B2DBBF"
+      "color": "#B2DBBF",
+      "completed": false,
+      "id": "1"
     },
     {
-      "id": "2",
       "text": "Finish coding project",
-      "color": "#FFE1B6"
+      "color": "#FFE1B6",
+      "completed": true,
+      "id": "2"
     },
     {
-      "id": "6c7b",
       "text": "Feed kittens",
-      "color": "#FFD3C0"
+      "color": "#FFD3C0",
+      "completed": true,
+      "id": "6c7b"
     },
     {
-      "id": "bba4",
       "text": "Breakfast",
-      "color": "#D4A5A5"
+      "color": "#D4A5A5",
+      "completed": true,
+      "id": "bba4"
     },
     {
-      "id": "bb8f",
-      "text": "Supermarket",
-      "color": "#64eb82"
-    },
-    {
-      "id": "4fa8",
       "text": "Learn math",
-      "color": "#9B8BBA"
+      "color": "#9B8BBA",
+      "completed": true,
+      "id": "4fa8"
     },
     {
       "text": "Chill",
       "color": "#B5EAD7",
+      "completed": true,
       "id": "cc3c"
     },
     {
-      "id": "e5b2",
-      "text": "Science",
-      "color": "#FFE1B6"
+      "text": "Cafe",
+      "color": "#B2DBBF",
+      "completed": false,
+      "id": "54c7"
+    },
+    {
+      "text": "Supermarket",
+      "color": "#FFD3C0",
+      "completed": true,
+      "id": "5103"
     }
   ]
 }
