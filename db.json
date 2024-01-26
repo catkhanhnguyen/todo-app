@@ -32,7 +32,7 @@
     {
       "text": "Supermarket",
       "color": "#FFD3C0",
-      "completed": false,
+      "completed": true,
       "id": "5103"
     }
   ]

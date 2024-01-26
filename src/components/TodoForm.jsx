@@ -24,14 +24,11 @@ function TodoForm() {
 
   const handleChange = (e) => setInput(e.target.value);
 
-  const fetchTodos = async () => {
-    try {
-      const response = await fetch('http://localhost:3000/todos');
-      const data = await response.json();
-      setTodos(data);
-    } catch (error) {
-      console.error('Error fetching todos:', error);
-    }
+  const fetchTodos = () => {
+    fetch('http://localhost:3000/todos')
+      .then(response => response.json())
+      .then(data => setTodos(data))
+      .catch(error => console.error('Error fetching todos:', error));
   };
 
   useEffect(() => {
@@ -51,50 +48,47 @@ function TodoForm() {
     setSnackbarOpen(true);
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     if (input.trim() !== '') {
       const existingTodo = todos.find((todo) => todo.text === input);
-  
+
       if (existingTodo) {
         showSnackbar('Todo already exists! Fulfill it now?!');
-  
+
       } else {
         const randomColor = generateRandomColor();
         const newTodo = { text: input, color: randomColor, completed: false };
-  
-        try {
-          const response = await fetch('http://localhost:3000/todos', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(newTodo),
-          });
-  
-          if (response.status === 201) {
-            const createdTodo = await response.json();
-            setTodos([...todos, createdTodo]);
-          }
-        } catch (error) {
-          console.error('Error saving todo to database:', error);
-        }
-  
+
+        fetch('http://localhost:3000/todos', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newTodo),
+        })
+          .then(response => {
+            if (response.status === 201) {
+              return response.json();
+            } else {
+              console.error('Failed to add todo to the database.');
+              throw new Error('Failed to add todo to the database.');
+            }
+          })
+          .then(createdTodo => setTodos([...todos, createdTodo]))
+          .catch(error => console.error('Error saving todo to database:', error));
+
         setInput('');
       }
     } else {
       showSnackbar('Todo is invalid: Please enter a non-empty string!!');
     }
   };
-  
 
-  const handleDelete = async (id) => {
+  const handleDelete = (id) => {
     const updatedTodos = todos.filter((todo) => todo.id !== id);
     setTodos(updatedTodos);
 
-    try {
-      await fetch(`http://localhost:3000/todos/${id}`, { method: 'DELETE' });
-    } catch (error) {
-      console.error('Error deleting todo from database:', error);
-    }
+    fetch(`http://localhost:3000/todos/${id}`, { method: 'DELETE' })
+      .catch(error => console.error('Error deleting todo from database:', error));
   };
 
   const handleEdit = (todo) => {
@@ -104,51 +98,47 @@ function TodoForm() {
     });
   };
 
-  const handleEditSave = async (newText) => {
-    try {
-      const currentTodo = todos.find((todo) => todo.id === editTodo.id);
+  const handleEditSave = (newText) => {
+    const currentTodo = todos.find((todo) => todo.id === editTodo.id);
 
-      const response = await fetch(`http://localhost:3000/todos/${editTodo.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: newText, color: currentTodo.color }),
-      });
-
-      if (response.status === 200) {
-        const updatedTodos = todos.map((todo) =>
-          todo.id === editTodo.id ? { ...todo, text: newText } : todo
-        );
-        setTodos(updatedTodos);
-      } else {
-        console.error('Failed to update todo in the database.');
-      }
-    } catch (error) {
-      console.error('Error updating todo:', error);
-    } finally {
-      setEditTodo(null);
-    }
+    fetch(`http://localhost:3000/todos/${editTodo.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: newText, color: currentTodo.color }),
+    })
+      .then(response => {
+        if (response.status === 200) {
+          const updatedTodos = todos.map((todo) =>
+            todo.id === editTodo.id ? { ...todo, text: newText } : todo
+          );
+          setTodos(updatedTodos);
+        } else {
+          console.error('Failed to update todo in the database.');
+        }
+      })
+      .catch(error => console.error('Error updating todo:', error))
+      .finally(() => setEditTodo(null));
   };
 
-  const handleToggleComplete = async (id, currentCompleted) => {
-    try {
-      const currentTodo = todos.find((todo) => todo.id === id);
+  const handleToggleComplete = (id, currentCompleted) => {
+    const currentTodo = todos.find((todo) => todo.id === id);
 
-      const response = await fetch(`http://localhost:3000/todos/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: currentTodo.text, color: currentTodo.color, completed: !currentCompleted }),
-      });
-      if (response.status === 200) {
-        const updatedTodos = todos.map((todo) =>
-          todo.id === id ? { ...todo, completed: !currentCompleted } : todo
-        );
-        setTodos(updatedTodos);
-      } else {
-        console.error('Failed to update todo in the database.');
-      }
-    } catch (error) {
-      console.error('Error updating todo:', error);
-    }
+    fetch(`http://localhost:3000/todos/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: currentTodo.text, color: currentTodo.color, completed: !currentCompleted }),
+    })
+      .then(response => {
+        if (response.status === 200) {
+          const updatedTodos = todos.map((todo) =>
+            todo.id === id ? { ...todo, completed: !currentCompleted } : todo
+          );
+          setTodos(updatedTodos);
+        } else {
+          console.error('Failed to update todo in the database.');
+        }
+      })
+      .catch(error => console.error('Error updating todo:', error));
   };
 
   return (
@@ -256,11 +246,11 @@ function TodoForm() {
           </Box>
         ))}
         <Modal
-          key={editTodo?.id || 'new'}
+          key={editTodo?.id}
           open={Boolean(editTodo)}
           onClose={() => setEditTodo(null)}
           onSave={(newText) => handleEditSave(newText, editTodo?.id)}
-          initialText={editTodo?.initialText || ''}
+          initialText={editTodo?.initialText}
         />
 
         <Toast
