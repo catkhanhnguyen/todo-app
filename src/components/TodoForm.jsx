@@ -35,11 +35,7 @@ function TodoForm() {
     fetchTodos();
   }, []);
 
-  const handleSnackbarClose = (event, reason) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-
+  const handleSnackbarClose = () => {
     setSnackbarOpen(false);
   };
 
@@ -68,9 +64,6 @@ function TodoForm() {
           .then(response => {
             if (response.status === 201) {
               return response.json();
-            } else {
-              console.error('Failed to add todo to the database.');
-              throw new Error('Failed to add todo to the database.');
             }
           })
           .then(createdTodo => setTodos([...todos, createdTodo]))
@@ -104,7 +97,7 @@ function TodoForm() {
     fetch(`http://localhost:3000/todos/${editTodo.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text: newText, color: currentTodo.color }),
+      body: JSON.stringify({ text: newText, color: currentTodo.color, completed: currentTodo.completed }),
     })
       .then(response => {
         if (response.status === 200) {
@@ -231,9 +224,9 @@ function TodoForm() {
             </Box>
 
             <Box>
-              <Tooltip title="Edit">
+              <Tooltip className="tooltip_delete" title="Edit">
                 <IconButton onClick={() => handleEdit(todo)}>
-                  <BorderColor sx={{ fontSize: '18px' }} />
+                  <BorderColor sx={{ fontSize: '18px', color: '' }} />
                 </IconButton>
               </Tooltip>
 

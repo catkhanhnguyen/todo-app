@@ -6,16 +6,10 @@ const Toast = ({ open, message, handleClose }) => {
   const [isOpen, setIsOpen] = useState(open);
 
   useEffect(() => {
-    // Update isOpen state when the open prop changes
     setIsOpen(open);
   }, [open]);
 
-  const handleSnackbarClose = (event, reason) => {
-    // If the user closes the snackbar or it times out, update the state
-    if (reason === 'clickaway') {
-      return;
-    }
-
+  const handleSnackbarClose = () => {
     setIsOpen(false);
     handleClose();
   };

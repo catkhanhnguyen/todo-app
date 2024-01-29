@@ -1,13 +1,13 @@
 {
   "todos": [
     {
-      "text": "Buy groceries",
+      "text": "Shopping",
       "color": "#B2DBBF",
       "completed": false,
       "id": "1"
     },
     {
-      "text": "Finish coding project",
+      "text": "Homework",
       "color": "#FFE1B6",
       "completed": true,
       "id": "2"
@@ -21,16 +21,11 @@
     {
       "text": "Breakfast",
       "color": "#D4A5A5",
-      "completed": true,
+      "completed": false,
       "id": "bba4"
     },
     {
-      "text": "Cafe",
-      "color": "#B2DBBF",
-      "id": "54c7"
-    },
-    {
-      "text": "Supermarket",
+      "text": "supermarket",
       "color": "#FFD3C0",
       "completed": true,
       "id": "5103"
